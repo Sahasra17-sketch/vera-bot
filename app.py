@@ -5,10 +5,10 @@ import os
 
 app = Flask(__name__)
 
-# --- Memory to avoid spam ---
+# -------- MEMORY (anti-spam) --------
 last_sent = {}
 
-# --- Message templates ---
+# -------- MESSAGE TEMPLATES --------
 repeat_templates = [
     "We missed you! Enjoy {discount}% off on {item} today!",
     "It's been a while! Get {discount}% off your favorites today.",
@@ -21,31 +21,36 @@ new_templates = [
     "Start with {discount}% off on your first order!"
 ]
 
-# ------------------ HEALTH ------------------
+# -------- ROOT (optional, avoids Not Found) --------
+@app.route('/')
+def home():
+    return "Vera Bot is running!"
+
+# -------- HEALTH --------
 @app.route('/v1/healthz', methods=['GET'])
 def health():
     return jsonify({"status": "ok"})
 
-# ------------------ METADATA ------------------
+# -------- METADATA --------
 @app.route('/v1/metadata', methods=['GET'])
 def metadata():
     return jsonify({
         "name": "Vera AI Bot",
         "version": "1.0",
-        "description": "Context-aware decision engine for business messaging"
+        "description": "Smart messaging decision engine"
     })
 
-# ------------------ CONTEXT ------------------
+# -------- CONTEXT --------
 @app.route('/v1/context', methods=['POST'])
 def context():
     return jsonify({"status": "context received"})
 
-# ------------------ REPLY ------------------
+# -------- REPLY --------
 @app.route('/v1/reply', methods=['POST'])
 def reply():
     return jsonify({"status": "reply received"})
 
-# ------------------ MAIN LOGIC ------------------
+# -------- MAIN LOGIC --------
 @app.route('/v1/tick', methods=['POST'])
 def tick():
     data = request.json or {}
@@ -132,6 +137,6 @@ def tick():
             "reason": "Low relevance, message suppressed"
         })
 
-# ------------------ RUN SERVER ------------------
+# -------- RUN SERVER --------
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
